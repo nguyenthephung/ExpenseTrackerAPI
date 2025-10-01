@@ -240,102 +240,15 @@ GET /api/export/csv?startDate=2024-01-01&endDate=2024-01-31
    - Verify Google Client ID/Secret in `.env`
    - Check redirect URI configuration in Google Console
 
-### Logs & Debugging
+   ## 🖼️ Screenshots
 
-- Application logs are available in console output
-- Set `LOG_LEVEL_SECURITY=DEBUG` in `.env` for detailed security logs
-- Check Swagger UI network tab for API response details
+   Below are screenshots of the application (Swagger UI and sample UI mockups). The images are in the `screenshot/` folder.
 
-## 🤝 Contributing
+   ![Swagger UI - Login and Auth](screenshot/screen01.png)
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new features
-5. Submit a pull request
+   ![Swagger UI - OAuth2 Flow](screenshot/screen02.png)
 
-## 📝 License
+   ![Expense List UI Mock](screenshot/screen03.png)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+   ![Expense Details UI Mock](screenshot/screen04.png)
 
-## 📞 Support
-
-For questions or support:
-- 📧 Email: dev@expensetracker.com
-- 🐛 Issues: [GitHub Issues](https://github.com/nguyenthephung/ExpenseTrackerAPI/issues)
-- 📖 Documentation: [Swagger UI](http://localhost:8080/swagger-ui.html)
-
----
-
-**🎉 Happy expense tracking! Start managing your finances with our comprehensive API.**
-```
-expenses/
-  ├── {expenseId}/
-      ├── id: string
-      ├── title: string
-      ├── description: string
-      ├── amount: number
-      ├── category: string
-      ├── date: timestamp
-      ├── userId: string
-      ├── createdAt: timestamp
-      └── updatedAt: timestamp
-```
-
-### Categories Collection
-```
-categories/
-  ├── {categoryId}/
-      ├── id: string
-      ├── name: string
-      ├── description: string
-      ├── color: string
-      └── icon: string
-```
-
-## Deployment
-
-### Local Development
-```bash
-./gradlew bootRun
-```
-
-### Production Build
-```bash
-./gradlew build
-java -jar app/build/libs/app.jar
-```
-
-### Docker (Optional)
-Create a `Dockerfile`:
-```dockerfile
-FROM openjdk:17-jre-slim
-COPY app/build/libs/app.jar expense-tracker.jar
-COPY .env .env
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "expense-tracker.jar"]
-```
-
-## Security Best Practices
-
-1. **Change Default JWT Secret**: Always use a strong, unique JWT secret in production
-2. **Environment Variables**: Never commit sensitive information to version control
-3. **HTTPS**: Use HTTPS in production
-4. **Firestore Rules**: Configure proper Firestore security rules
-5. **Regular Updates**: Keep dependencies updated
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please open an issue in the repository or contact the development team.
