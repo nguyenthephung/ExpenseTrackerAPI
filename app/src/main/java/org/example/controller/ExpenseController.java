@@ -2,6 +2,12 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.dto.ExpenseRequest;
 import org.example.dto.ExpenseResponse;
@@ -19,16 +25,69 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/expenses")
-@Tag(name = "Expense Management", description = "APIs for managing expenses")
+@Tag(name = "💰 Expense Management", description = "CRUD operations for expense records")
 @CrossOrigin(origins = "*")
 public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
 
+    @Operation(
+        summary = "💳 Create New Expense",
+        description = "Add a new expense record to your account",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "201",
+            description = "Expense created successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ExpenseResponse.class),
+                examples = @ExampleObject(
+                    name = "Created Expense",
+                    summary = "Successfully created expense",
+                    value = """
+                    {
+                        "id": "expense-123",
+                        "description": "Lunch at restaurant",
+                        "amount": 25.50,
+                        "categoryId": "food-category",
+                        "categoryName": "Food & Dining",
+                        "date": "2024-01-20T12:30:00",
+                        "userId": "user-123",
+                        "createdAt": "2024-01-20T12:30:00"
+                    }
+                    """
+                )
+            )
+        ),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
     @PostMapping
-    @Operation(summary = "Create a new expense", description = "Creates a new expense record")
-    public ResponseEntity<ExpenseResponse> createExpense(@Valid @RequestBody ExpenseRequest request) 
+    public ResponseEntity<ExpenseResponse> createExpense(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Expense details to create",
+            required = true,
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ExpenseRequest.class),
+                examples = @ExampleObject(
+                    name = "Sample Expense",
+                    summary = "Create a restaurant expense",
+                    value = """
+                    {
+                        "description": "Lunch at restaurant",
+                        "amount": 25.50,
+                        "categoryId": "food-category",
+                        "date": "2024-01-20T12:30:00"
+                    }
+                    """
+                )
+            )
+        )
+        @Valid @RequestBody ExpenseRequest request) 
             throws ExecutionException, InterruptedException {
         ExpenseResponse response = expenseService.createExpense(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -52,8 +111,50 @@ public class ExpenseController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+        summary = "📋 Get All Expenses",
+        description = "Retrieve all expense records for the current user",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Expenses retrieved successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    name = "Expense List",
+                    summary = "List of user expenses",
+                    value = """
+                    [
+                        {
+                            "id": "expense-123",
+                            "description": "Lunch at restaurant",
+                            "amount": 25.50,
+                            "categoryId": "food-category",
+                            "categoryName": "Food & Dining",
+                            "date": "2024-01-20T12:30:00",
+                            "userId": "user-123",
+                            "createdAt": "2024-01-20T12:30:00"
+                        },
+                        {
+                            "id": "expense-124",
+                            "description": "Gas station",
+                            "amount": 45.00,
+                            "categoryId": "transport-category",
+                            "categoryName": "Transportation",
+                            "date": "2024-01-19T08:15:00",
+                            "userId": "user-123",
+                            "createdAt": "2024-01-19T08:15:00"
+                        }
+                    ]
+                    """
+                )
+            )
+        ),
+        @ApiResponse(responseCode = "401", description = "Not authenticated")
+    })
     @GetMapping
-    @Operation(summary = "Get all expenses", description = "Retrieves all expenses")
     public ResponseEntity<List<ExpenseResponse>> getAllExpenses() 
             throws ExecutionException, InterruptedException {
         List<ExpenseResponse> responses = expenseService.getAllExpenses();

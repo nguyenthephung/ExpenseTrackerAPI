@@ -1,213 +1,273 @@
-# Expense Tracker API
+# 💰 Expense Tracker API
 
-A comprehensive REST API for managing personal expenses with Firebase Firestore backend, JWT authentication, built with Java Spring Boot.
+A comprehensive REST API for personal expense management with JWT authentication, OAuth2 Google integration, and Firebase Firestore backend.
 
-## Features
+## 🚀 Features
 
-- ✅ **JWT Authentication**: Secure login/register system
-- ✅ **CRUD Operations**: Create, Read, Update, Delete expenses
-- ✅ **Category Management**: Organize expenses by categories
-- ✅ **User Management**: Personal expense tracking per user
-- ✅ **Statistics & Analytics**: Get insights on spending patterns
-- ✅ **Data Export**: Export data in JSON/CSV formats
-- ✅ **Swagger Documentation**: Interactive API documentation
-- ✅ **Firebase Firestore**: Cloud-based NoSQL database
-- ✅ **Date Range Filtering**: Filter expenses by date ranges
-- ✅ **Environment Variables**: Secure configuration management
+- **🔐 Dual Authentication**: JWT tokens + OAuth2 Google login
+- **💳 Expense Management**: Full CRUD operations for expenses
+- **🏷️ Category System**: Organize expenses by categories
+- **📊 Analytics**: Monthly/yearly spending statistics
+- **📤 Data Export**: CSV and JSON export functionality
+- **☁️ Cloud Storage**: Firebase Firestore integration
+- **📖 Interactive Documentation**: Complete Swagger UI interface
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-- **Backend**: Java 17 + Spring Boot 3.1.4
-- **Security**: Spring Security + JWT
+- **Backend**: Spring Boot 3.1.4
+- **Language**: Java 17
 - **Database**: Firebase Firestore (NoSQL)
-- **Documentation**: Swagger UI (springdoc-openapi)
+- **Security**: Spring Security + JWT + OAuth2
+- **Documentation**: OpenAPI 3.0 (Swagger)
 - **Build Tool**: Gradle
-- **Libraries**: Lombok, Jackson, Firebase Admin SDK, JJWT
+- **Testing**: JUnit 5 + Mockito
 
-## Getting Started
-
-### Prerequisites
+## 📋 Prerequisites
 
 - Java 17 or higher
+- Gradle 7.0 or higher
 - Firebase project with Firestore enabled
-- Firebase Admin SDK service account key
+- Google Cloud Console project (for OAuth2)
 
-### Installation
+## ⚙️ Environment Setup
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/nguyenthephung/ExpenseTrackerAPI.git
    cd ExpenseTrackerAPI
    ```
 
-2. **Configure Environment Variables**
-   ```bash
-   # Copy the example environment file
-   cp .env.example .env
+2. **Configure environment variables**
    
-   # Edit .env file with your configurations
-   nano .env
-   ```
-
-3. **Setup Firebase**
-   - Download your Firebase Admin SDK service account key
-   - Save it as `app/src/main/resources/firebase-adminsdk.json`
-   - Update `FIREBASE_PROJECT_ID` in `.env` file
-
-4. **Configure Environment Variables**
-   Update `.env` file with your values:
+   Create `.env` file in the root directory:
    ```env
-   # Database Configuration
+   # Firebase Configuration
    FIREBASE_PROJECT_ID=your-firebase-project-id
    FIREBASE_CREDENTIALS_PATH=classpath:firebase-adminsdk.json
-
-   # JWT Configuration - Change this to a strong secret key
-   JWT_SECRET=your-jwt-secret-key-should-be-very-long-and-secure
+   
+   # JWT Configuration
+   JWT_SECRET=your-super-secret-jwt-key-here-make-it-long-and-secure
    JWT_EXPIRATION_MS=86400000
-
+   
+   # OAuth2 Google Configuration
+   GOOGLE_CLIENT_ID=your-google-client-id
+   GOOGLE_CLIENT_SECRET=your-google-client-secret
+   GOOGLE_REDIRECT_URI=http://localhost:8080/login/oauth2/code/google
+   
+   # OAuth2 Redirect URIs
+   OAUTH2_REDIRECT_URIS=http://localhost:3000/oauth2/redirect,http://localhost:8080/api/auth/oauth2/success
+   
    # Server Configuration
    SERVER_PORT=8080
    ```
 
-5. **Build the project**
-   ```bash
-   ./gradlew build
-   ```
+3. **Add Firebase Admin SDK**
+   
+   Download `firebase-adminsdk.json` from Firebase Console and place it in `app/src/main/resources/`
 
-6. **Run the application**
-   ```bash
-   ./gradlew bootRun
-   ```
+## 🚀 Running the Application
 
-The API will be available at `http://localhost:8080`
-
-## Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `FIREBASE_PROJECT_ID` | Your Firebase project ID | - |
-| `FIREBASE_CREDENTIALS_PATH` | Path to Firebase credentials | `classpath:firebase-adminsdk.json` |
-| `JWT_SECRET` | Secret key for JWT token generation | - |
-| `JWT_EXPIRATION_MS` | JWT token expiration time in milliseconds | `86400000` (24 hours) |
-| `SERVER_PORT` | Server port | `8080` |
-| `APP_NAME` | Application name | `expense-tracker-api` |
-| `LOG_LEVEL_SECURITY` | Security logging level | `INFO` |
-| `LOG_LEVEL_ROOT` | Root logging level | `INFO` |
-
-## API Documentation
-
-Once the application is running, you can access:
-
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **API Docs**: http://localhost:8080/api-docs
-
-## Authentication Flow
-
-### 1. Register a new user
 ```bash
-POST /api/auth/register
-{
-  "username": "john_doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "firstName": "John",
-  "lastName": "Doe"
-}
+# Build the project
+./gradlew clean build
+
+# Run the application
+./gradlew bootRun
 ```
 
-### 2. Login
-```bash
-POST /api/auth/login
-{
-  "usernameOrEmail": "john_doe",
-  "password": "password123"
-}
-```
+The API will be available at: `http://localhost:8080`
 
-Response:
+## 📖 API Documentation & Testing with Swagger UI
+
+### Access Swagger UI
+Open your browser and navigate to: **http://localhost:8080/swagger-ui.html**
+
+### 🔐 Authentication Flow
+
+#### Option 1: JWT Authentication (Email/Password)
+
+1. **Register a new account**
+   - Navigate to **Authentication** section
+   - Click on **POST /api/auth/register**
+   - Click "Try it out"
+   - Use this example payload:
+   ```json
+   {
+     "email": "test@example.com",
+     "password": "SecurePassword123!",
+     "firstName": "John",
+     "lastName": "Doe"
+   }
+   ```
+   - Click "Execute"
+
+2. **Login to get JWT token**
+   - Click on **POST /api/auth/login**
+   - Use these credentials:
+   ```json
+   {
+     "email": "test@example.com",
+     "password": "SecurePassword123!"
+   }
+   ```
+   - Copy the `token` from the response
+
+3. **Authorize requests**
+   - Click the **🔒 Authorize** button at the top of Swagger UI
+   - Enter: `Bearer YOUR_COPIED_TOKEN`
+   - Click "Authorize"
+
+#### Option 2: OAuth2 Google Authentication
+
+1. **Initiate Google login**
+   - Click on **GET /api/auth/oauth2/google**
+   - Click "Try it out" → "Execute"
+   - You'll be redirected to Google login
+   - After successful login, you'll get a JWT token
+
+2. **Use the token**
+   - Copy the token from the redirect URL
+   - Click **🔒 Authorize** in Swagger UI
+   - Enter: `Bearer YOUR_TOKEN`
+
+### 💳 Using Expense Management Features
+
+After authentication, you can test all endpoints:
+
+#### Create a Category First
 ```json
+POST /api/categories
 {
-  "token": "eyJhbGciOiJIUzUxMiJ9...",
-  "type": "Bearer",
-  "id": "user_id",
-  "username": "john_doe",
-  "email": "john@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "roles": ["ROLE_USER"]
+  "name": "Food & Dining",
+  "description": "Restaurant meals and food purchases",
+  "color": "#FF6B6B"
 }
 ```
 
-### 3. Use JWT Token
-Include the JWT token in the Authorization header for protected endpoints:
+#### Create an Expense
+```json
+POST /api/expenses
+{
+  "description": "Lunch at Italian restaurant",
+  "amount": 45.50,
+  "categoryId": "your-category-id-here",
+  "date": "2024-01-20T12:30:00"
+}
 ```
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9...
+
+#### Get Expense Statistics
+```json
+GET /api/statistics/monthly?year=2024&month=1
 ```
 
-## API Endpoints
+#### Export Data
+```json
+GET /api/export/csv?startDate=2024-01-01&endDate=2024-01-31
+```
 
-### Authentication
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user information
-- `POST /api/auth/logout` - Logout user
+## 📊 API Endpoints Overview
 
-### Expenses (Requires Authentication)
-- `POST /api/expenses` - Create a new expense
-- `GET /api/expenses` - Get all expenses for current user
+### 🔐 Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login with email/password
+- `GET /api/auth/me` - Get current user profile
+- `GET /api/auth/oauth2/google` - Google OAuth2 login
+
+### 💰 Expense Management
+- `GET /api/expenses` - Get all user expenses
+- `POST /api/expenses` - Create new expense
 - `GET /api/expenses/{id}` - Get expense by ID
 - `PUT /api/expenses/{id}` - Update expense
 - `DELETE /api/expenses/{id}` - Delete expense
-- `GET /api/expenses/category/{category}` - Get expenses by category
-- `GET /api/expenses/date-range` - Get expenses by date range
+- `GET /api/expenses/search` - Search expenses with filters
 
-### Categories (Requires Authentication)
-- `POST /api/categories` - Create a new category
+### 🏷️ Categories
 - `GET /api/categories` - Get all categories
-- `GET /api/categories/{id}` - Get category by ID
+- `POST /api/categories` - Create new category
 - `PUT /api/categories/{id}` - Update category
 - `DELETE /api/categories/{id}` - Delete category
-- `POST /api/categories/initialize` - Initialize default categories
 
-### Statistics (Requires Authentication)
-- `GET /api/statistics` - Get overall statistics
-- `GET /api/statistics/date-range` - Get statistics by date range
+### 📊 Statistics & Analytics
+- `GET /api/statistics/summary` - Overall spending summary
+- `GET /api/statistics/monthly` - Monthly spending report
+- `GET /api/statistics/yearly` - Yearly spending report
+- `GET /api/statistics/by-category` - Spending by category
 
-### Data Export (Requires Authentication)
-- `GET /api/export/json` - Export all expenses to JSON
-- `GET /api/export/json/date-range` - Export expenses by date range to JSON
-- `GET /api/export/csv` - Export all expenses to CSV
-- `GET /api/export/csv/date-range` - Export expenses by date range to CSV
+### 📤 Data Export
+- `GET /api/export/csv` - Export data as CSV
+- `GET /api/export/json` - Export data as JSON
 
-## Security Features
+## 🧪 Testing with Swagger UI
 
-- **JWT Authentication**: Stateless authentication using JSON Web Tokens
-- **Password Encryption**: BCrypt hashing for password storage
-- **CORS Support**: Configurable Cross-Origin Resource Sharing
-- **Role-Based Access**: User roles and permissions
-- **Input Validation**: Request validation and sanitization
-- **Error Handling**: Comprehensive error responses
+### Sample Test Scenarios
 
-## Database Structure
+1. **Complete User Journey**
+   ```
+   Register → Login → Create Categories → Add Expenses → View Statistics → Export Data
+   ```
 
-### Users Collection
-```
-users/
-  ├── {userId}/
-      ├── id: string
-      ├── username: string
-      ├── email: string
-      ├── password: string (hashed)
-      ├── firstName: string
-      ├── lastName: string
-      ├── roles: array
-      ├── enabled: boolean
-      ├── createdAt: timestamp
-      ├── updatedAt: timestamp
-      └── lastLoginAt: timestamp
-```
+2. **Expense Filtering**
+   ```
+   Create multiple expenses → Use search filters by date range, category, amount
+   ```
 
-### Expenses Collection
+3. **Analytics Testing**
+   ```
+   Add expenses across different months → Check monthly/yearly statistics
+   ```
+
+## 🔒 Security Features
+
+- **JWT Token Authentication**: Secure stateless authentication
+- **OAuth2 Google Integration**: Social login capability  
+- **Password Encryption**: BCrypt password hashing
+- **CORS Configuration**: Cross-origin request handling
+- **Environment Variables**: Secure configuration management
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Firebase Connection Error**
+   - Verify `firebase-adminsdk.json` file is in the correct location
+   - Check Firebase project ID in environment variables
+
+2. **JWT Token Issues**
+   - Ensure JWT secret is properly set in `.env`
+   - Check token expiration time
+
+3. **OAuth2 Google Login Problems**
+   - Verify Google Client ID/Secret in `.env`
+   - Check redirect URI configuration in Google Console
+
+### Logs & Debugging
+
+- Application logs are available in console output
+- Set `LOG_LEVEL_SECURITY=DEBUG` in `.env` for detailed security logs
+- Check Swagger UI network tab for API response details
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new features
+5. Submit a pull request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For questions or support:
+- 📧 Email: dev@expensetracker.com
+- 🐛 Issues: [GitHub Issues](https://github.com/nguyenthephung/ExpenseTrackerAPI/issues)
+- 📖 Documentation: [Swagger UI](http://localhost:8080/swagger-ui.html)
+
+---
+
+**🎉 Happy expense tracking! Start managing your finances with our comprehensive API.**
 ```
 expenses/
   ├── {expenseId}/
