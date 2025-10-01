@@ -197,48 +197,6 @@ GET /api/export/csv?startDate=2024-01-01&endDate=2024-01-31
 - `GET /api/export/csv` - Export data as CSV
 - `GET /api/export/json` - Export data as JSON
 
-## 🧪 Testing with Swagger UI
-
-### Sample Test Scenarios
-
-1. **Complete User Journey**
-   ```
-   Register → Login → Create Categories → Add Expenses → View Statistics → Export Data
-   ```
-
-2. **Expense Filtering**
-   ```
-   Create multiple expenses → Use search filters by date range, category, amount
-   ```
-
-3. **Analytics Testing**
-   ```
-   Add expenses across different months → Check monthly/yearly statistics
-   ```
-
-## 🔒 Security Features
-
-- **JWT Token Authentication**: Secure stateless authentication
-- **OAuth2 Google Integration**: Social login capability  
-- **Password Encryption**: BCrypt password hashing
-- **CORS Configuration**: Cross-origin request handling
-- **Environment Variables**: Secure configuration management
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Firebase Connection Error**
-   - Verify `firebase-adminsdk.json` file is in the correct location
-   - Check Firebase project ID in environment variables
-
-2. **JWT Token Issues**
-   - Ensure JWT secret is properly set in `.env`
-   - Check token expiration time
-
-3. **OAuth2 Google Login Problems**
-   - Verify Google Client ID/Secret in `.env`
-   - Check redirect URI configuration in Google Console
 
    ## 🖼️ Screenshots
 
