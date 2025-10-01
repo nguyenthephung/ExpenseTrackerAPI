@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.AuthResponse;
-import org.example.dto.UserResponse;
+import org.example.dto.AuthResponse;
 import org.example.service.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -59,19 +59,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
             
             // Process OAuth2 user and get user response
-            UserResponse userResponse = oAuth2UserService.processOAuth2User(oauth2User);
+            AuthResponse userResponse = oAuth2UserService.processOAuth2User(oauth2User);
             
             // Generate JWT token
-            String token = jwtUtils.generateToken(userResponse.getEmail());
+            String token = jwtUtils.generateJwtToken(userResponse.getId());
             
             // Check if this is an API request
             String acceptHeader = request.getHeader("Accept");
             if (acceptHeader != null && acceptHeader.contains("application/json")) {
                 // Return JSON response for API clients
-                AuthResponse authResponse = new AuthResponse();
-                authResponse.setToken(token);
-                authResponse.setType("Bearer");
-                authResponse.setUser(userResponse);
+                AuthResponse authResponse = new AuthResponse(
+                        token, "Bearer", userResponse.getId(), userResponse.getEmail(),
+                        userResponse.getFirstName(), userResponse.getLastName(), userResponse.getRoles()
+                );
                 
                 return objectMapper.writeValueAsString(authResponse);
             } else {

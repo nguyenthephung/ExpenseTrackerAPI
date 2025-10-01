@@ -4,8 +4,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.dto.UserResponse;
-import org.example.model.OAuth2User;
+import org.example.dto.AuthResponse;
 import org.example.model.User;
 import org.example.repository.UserRepository;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -24,7 +23,7 @@ public class OAuth2UserService {
     private final UserRepository userRepository;
     private final Firestore firestore;
     
-    public UserResponse processOAuth2User(OAuth2User oauth2User) throws ExecutionException, InterruptedException {
+    public AuthResponse processOAuth2User(OAuth2User oauth2User) throws ExecutionException, InterruptedException {
         String email = oauth2User.getAttribute("email");
         String name = oauth2User.getAttribute("name");
         String picture = oauth2User.getAttribute("picture");
@@ -42,14 +41,10 @@ public class OAuth2UserService {
             user.setLastLoginAt(LocalDateTime.now());
             userRepository.save(user);
             
-            return UserResponse.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .firstName(user.getFirstName())
-                    .lastName(user.getLastName())
-                    .roles(user.getRoles())
-                    .enabled(user.isEnabled())
-                    .build();
+            return new AuthResponse(
+                    null, "Bearer", user.getId(), user.getEmail(), 
+                    user.getFirstName(), user.getLastName(), user.getRoles()
+            );
         } else {
             // Create new user from OAuth2 data
             User newUser = new User();
@@ -63,19 +58,16 @@ public class OAuth2UserService {
             newUser.setLastLoginAt(LocalDateTime.now());
             
             // Save new user
-            User savedUser = userRepository.save(newUser);
+            String savedUserId = userRepository.save(newUser);
+            newUser.setId(savedUserId);
             
             // Also save OAuth2 specific information
-            saveOAuth2User(savedUser.getId(), oauth2User, "google");
+            saveOAuth2User(savedUserId, oauth2User, "google");
             
-            return UserResponse.builder()
-                    .id(savedUser.getId())
-                    .email(savedUser.getEmail())
-                    .firstName(savedUser.getFirstName())
-                    .lastName(savedUser.getLastName())
-                    .roles(savedUser.getRoles())
-                    .enabled(savedUser.isEnabled())
-                    .build();
+            return new AuthResponse(
+                    null, "Bearer", newUser.getId(), newUser.getEmail(), 
+                    newUser.getFirstName(), newUser.getLastName(), newUser.getRoles()
+            );
         }
     }
     
@@ -96,7 +88,7 @@ public class OAuth2UserService {
     
     private void saveOAuth2User(String userId, OAuth2User oauth2User, String provider) {
         try {
-            OAuth2User oAuth2UserEntity = new OAuth2User();
+            org.example.model.OAuth2User oAuth2UserEntity = new org.example.model.OAuth2User();
             oAuth2UserEntity.setId(userId + "_" + provider);
             oAuth2UserEntity.setEmail(oauth2User.getAttribute("email"));
             oAuth2UserEntity.setName(oauth2User.getAttribute("name"));
