@@ -9,6 +9,11 @@ spring:
 firebase:
   credentials-path: classpath:firebase-adminsdk.json
 
+# JWT configuration
+app:
+  jwtSecret: expenseTrackerSecretKeyForJWTTokenGenerationThatShouldBeLongEnough
+  jwtExpirationMs: 86400000 # 24 hours
+
 # Swagger configuration
 springdoc:
   api-docs:
@@ -16,3 +21,9 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
+
+# Logging
+logging:
+  level:
+    org.example.security: DEBUG
+    org.springframework.security: DEBUG

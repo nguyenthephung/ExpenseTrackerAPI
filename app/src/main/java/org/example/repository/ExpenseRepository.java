@@ -58,6 +58,19 @@ public class ExpenseRepository {
         return expenses;
     }
 
+    public List<Expense> findByUserId(String userId) throws ExecutionException, InterruptedException {
+        Query query = firestore.collection(COLLECTION_NAME).whereEqualTo("userId", userId);
+        ApiFuture<QuerySnapshot> future = query.get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        List<Expense> expenses = new ArrayList<>();
+        
+        for (QueryDocumentSnapshot document : documents) {
+            Expense expense = document.toObject(Expense.class);
+            expenses.add(expense);
+        }
+        return expenses;
+    }
+
     public List<Expense> findByCategory(String category) throws ExecutionException, InterruptedException {
         Query query = firestore.collection(COLLECTION_NAME).whereEqualTo("category", category);
         ApiFuture<QuerySnapshot> future = query.get();
