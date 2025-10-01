@@ -22,23 +22,41 @@ public class ExpenseService {
     @Autowired
     private ExpenseRepository expenseRepository;
 
+    @Autowired
+    private AuthService authService;
+
     public ExpenseResponse createExpense(ExpenseRequest request) throws ExecutionException, InterruptedException {
+        String currentUserId = authService.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
         Expense expense = new Expense();
         expense.setTitle(request.getTitle());
         expense.setDescription(request.getDescription());
         expense.setAmount(request.getAmount());
         expense.setCategory(request.getCategory());
         expense.setDate(request.getDate() != null ? request.getDate() : LocalDateTime.now());
-        expense.setUserId(request.getUserId());
+        expense.setUserId(currentUserId); // Set current user ID
 
         String id = expenseRepository.save(expense);
         return convertToResponse(expenseRepository.findById(id));
     }
 
     public ExpenseResponse updateExpense(String id, ExpenseRequest request) throws ExecutionException, InterruptedException {
+        String currentUserId = authService.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
         Expense expense = expenseRepository.findById(id);
         if (expense == null) {
             throw new RuntimeException("Expense not found with id: " + id);
+        }
+
+        // Check if expense belongs to current user
+        if (!currentUserId.equals(expense.getUserId())) {
+            throw new RuntimeException("Access denied: This expense does not belong to you");
         }
 
         expense.setTitle(request.getTitle());
@@ -48,22 +66,37 @@ public class ExpenseService {
         if (request.getDate() != null) {
             expense.setDate(request.getDate());
         }
-        expense.setUserId(request.getUserId());
 
         expenseRepository.save(expense);
         return convertToResponse(expense);
     }
 
     public ExpenseResponse getExpenseById(String id) throws ExecutionException, InterruptedException {
+        String currentUserId = authService.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
         Expense expense = expenseRepository.findById(id);
         if (expense == null) {
             throw new RuntimeException("Expense not found with id: " + id);
         }
+
+        // Check if expense belongs to current user
+        if (!currentUserId.equals(expense.getUserId())) {
+            throw new RuntimeException("Access denied: This expense does not belong to you");
+        }
+
         return convertToResponse(expense);
     }
 
     public List<ExpenseResponse> getAllExpenses() throws ExecutionException, InterruptedException {
-        List<Expense> expenses = expenseRepository.findAll();
+        String currentUserId = authService.getCurrentUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        List<Expense> expenses = expenseRepository.findByUserId(currentUserId);
         return expenses.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
