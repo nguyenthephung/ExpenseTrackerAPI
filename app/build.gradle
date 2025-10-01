@@ -20,6 +20,8 @@ dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation libs.junit.jupiter
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -35,7 +37,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
