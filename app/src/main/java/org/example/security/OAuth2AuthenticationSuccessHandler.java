@@ -57,12 +57,15 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                                       Authentication authentication) {
         try {
             OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            log.info("OAuth2 user principal: {}", oauth2User.getName());
             
             // Process OAuth2 user and get user response
             AuthResponse userResponse = oAuth2UserService.processOAuth2User(oauth2User);
+            log.info("OAuth2 user processed successfully: {}", userResponse.getEmail());
             
             // Generate JWT token
             String token = jwtUtils.generateJwtToken(userResponse.getId());
+            log.info("JWT token generated successfully for user: {}", userResponse.getId());
             
             // Check if this is an API request
             String acceptHeader = request.getHeader("Accept");
@@ -76,17 +79,22 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 return objectMapper.writeValueAsString(authResponse);
             } else {
                 // Redirect to frontend with token in URL
-                return UriComponentsBuilder.fromUriString(redirectUri)
+                String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri)
                         .queryParam("token", token)
                         .queryParam("type", "Bearer")
                         .build().toUriString();
+                log.info("Redirecting to: {}", redirectUrl);
+                return redirectUrl;
             }
             
         } catch (Exception e) {
-            log.error("Error processing OAuth2 authentication: {}", e.getMessage());
-            return UriComponentsBuilder.fromUriString(redirectUri)
+            log.error("Error processing OAuth2 authentication", e);
+            String errorUrl = UriComponentsBuilder.fromUriString(redirectUri)
                     .queryParam("error", "authentication_failed")
+                    .queryParam("message", e.getMessage())
                     .build().toUriString();
+            log.error("Redirecting to error URL: {}", errorUrl);
+            return errorUrl;
         }
     }
     

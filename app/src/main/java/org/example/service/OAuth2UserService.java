@@ -1,7 +1,6 @@
 package org.example.service;
 
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dto.AuthResponse;
@@ -72,18 +71,8 @@ public class OAuth2UserService {
     }
     
     private Optional<User> findUserByEmail(String email) throws ExecutionException, InterruptedException {
-        QuerySnapshot querySnapshot = firestore.collection("users")
-                .whereEqualTo("email", email)
-                .get()
-                .get();
-        
-        if (!querySnapshot.isEmpty()) {
-            User user = querySnapshot.getDocuments().get(0).toObject(User.class);
-            user.setId(querySnapshot.getDocuments().get(0).getId());
-            return Optional.of(user);
-        }
-        
-        return Optional.empty();
+        User user = userRepository.findByEmail(email);
+        return user != null ? Optional.of(user) : Optional.empty();
     }
     
     private void saveOAuth2User(String userId, OAuth2User oauth2User, String provider) {
@@ -104,9 +93,13 @@ public class OAuth2UserService {
             oAuth2UserEntity.setUpdatedAt(LocalDateTime.now());
             oAuth2UserEntity.setLastLoginAt(LocalDateTime.now());
             
+            // Convert to FirebaseOAuth2User for Timestamp compatibility
+            org.example.dto.FirebaseOAuth2User firebaseOAuth2User = 
+                org.example.dto.FirebaseOAuth2User.fromOAuth2User(oAuth2UserEntity);
+            
             firestore.collection("oauth2_users")
                     .document(oAuth2UserEntity.getId())
-                    .set(oAuth2UserEntity)
+                    .set(firebaseOAuth2User)
                     .get();
             
             log.info("OAuth2 user saved: {}", oAuth2UserEntity.getEmail());

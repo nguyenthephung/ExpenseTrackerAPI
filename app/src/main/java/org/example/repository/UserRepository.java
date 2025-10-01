@@ -2,6 +2,7 @@ package org.example.repository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import org.example.dto.FirebaseUser;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -28,8 +29,11 @@ public class UserRepository {
         }
         user.setUpdatedAt(LocalDateTime.now());
         
+        // Convert to FirebaseUser to handle Timestamp conversion
+        FirebaseUser firebaseUser = FirebaseUser.fromUser(user);
+        
         ApiFuture<WriteResult> result = firestore.collection(COLLECTION_NAME)
-                .document(user.getId()).set(user);
+                .document(user.getId()).set(firebaseUser);
         result.get();
         return user.getId();
     }
@@ -40,7 +44,8 @@ public class UserRepository {
         DocumentSnapshot document = future.get();
         
         if (document.exists()) {
-            return document.toObject(User.class);
+            FirebaseUser firebaseUser = document.toObject(FirebaseUser.class);
+            return firebaseUser != null ? firebaseUser.toUser() : null;
         }
         return null;
     }
@@ -51,7 +56,8 @@ public class UserRepository {
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
         
         if (!documents.isEmpty()) {
-            return documents.get(0).toObject(User.class);
+            FirebaseUser firebaseUser = documents.get(0).toObject(FirebaseUser.class);
+            return firebaseUser != null ? firebaseUser.toUser() : null;
         }
         return null;
     }
@@ -62,7 +68,8 @@ public class UserRepository {
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
         
         if (!documents.isEmpty()) {
-            return documents.get(0).toObject(User.class);
+            FirebaseUser firebaseUser = documents.get(0).toObject(FirebaseUser.class);
+            return firebaseUser != null ? firebaseUser.toUser() : null;
         }
         return null;
     }
@@ -89,8 +96,10 @@ public class UserRepository {
         List<User> users = new ArrayList<>();
         
         for (QueryDocumentSnapshot document : documents) {
-            User user = document.toObject(User.class);
-            users.add(user);
+            FirebaseUser firebaseUser = document.toObject(FirebaseUser.class);
+            if (firebaseUser != null) {
+                users.add(firebaseUser.toUser());
+            }
         }
         return users;
     }
