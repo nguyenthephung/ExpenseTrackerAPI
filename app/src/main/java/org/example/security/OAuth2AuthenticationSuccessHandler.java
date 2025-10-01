@@ -1,0 +1,100 @@
+package org.example.security;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.dto.AuthResponse;
+import org.example.dto.UserResponse;
+import org.example.service.OAuth2UserService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
+import java.net.URI;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+    
+    private final OAuth2UserService oAuth2UserService;
+    private final JwtUtils jwtUtils;
+    private final ObjectMapper objectMapper;
+    
+    @Value("${app.oauth2.authorized-redirect-uris:http://localhost:3000/oauth2/redirect}")
+    private String redirectUri;
+    
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, 
+                                      Authentication authentication) throws IOException, ServletException {
+        
+        if (response.isCommitted()) {
+            log.debug("Response has already been committed. Unable to redirect to target URL");
+            return;
+        }
+        
+        String targetUrl = determineTargetUrl(request, response, authentication);
+        
+        if (targetUrl.contains("token=")) {
+            // Redirect to frontend with token
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } else {
+            // Return JSON response (for API clients)
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(targetUrl);
+        }
+    }
+    
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, 
+                                      Authentication authentication) {
+        try {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            
+            // Process OAuth2 user and get user response
+            UserResponse userResponse = oAuth2UserService.processOAuth2User(oauth2User);
+            
+            // Generate JWT token
+            String token = jwtUtils.generateToken(userResponse.getEmail());
+            
+            // Check if this is an API request
+            String acceptHeader = request.getHeader("Accept");
+            if (acceptHeader != null && acceptHeader.contains("application/json")) {
+                // Return JSON response for API clients
+                AuthResponse authResponse = new AuthResponse();
+                authResponse.setToken(token);
+                authResponse.setType("Bearer");
+                authResponse.setUser(userResponse);
+                
+                return objectMapper.writeValueAsString(authResponse);
+            } else {
+                // Redirect to frontend with token in URL
+                return UriComponentsBuilder.fromUriString(redirectUri)
+                        .queryParam("token", token)
+                        .queryParam("type", "Bearer")
+                        .build().toUriString();
+            }
+            
+        } catch (Exception e) {
+            log.error("Error processing OAuth2 authentication: {}", e.getMessage());
+            return UriComponentsBuilder.fromUriString(redirectUri)
+                    .queryParam("error", "authentication_failed")
+                    .build().toUriString();
+        }
+    }
+    
+    private boolean isAuthorizedRedirectUri(String uri) {
+        URI clientRedirectUri = URI.create(uri);
+        URI authorizedUri = URI.create(redirectUri);
+        
+        return authorizedUri.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+                && authorizedUri.getPort() == clientRedirectUri.getPort();
+    }
+}
