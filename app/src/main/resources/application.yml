@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: ${APP_NAME:expense-tracker-api}
+  main:
+    allow-bean-definition-overriding: true
 
 # Firebase configuration
 firebase:
