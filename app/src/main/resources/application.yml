@@ -1,18 +1,19 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
-    name: expense-tracker-api
+    name: ${APP_NAME:expense-tracker-api}
 
 # Firebase configuration
 firebase:
-  credentials-path: classpath:firebase-adminsdk.json
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:classpath:firebase-adminsdk.json}
+  project-id: ${FIREBASE_PROJECT_ID:expensetrackerapi-e92a6}
 
 # JWT configuration
 app:
-  jwtSecret: expenseTrackerSecretKeyForJWTTokenGenerationThatShouldBeLongEnough
-  jwtExpirationMs: 86400000 # 24 hours
+  jwtSecret: ${JWT_SECRET:expenseTrackerSecretKeyForJWTTokenGenerationThatShouldBeLongEnough}
+  jwtExpirationMs: ${JWT_EXPIRATION_MS:86400000}
 
 # Swagger configuration
 springdoc:
@@ -25,5 +26,6 @@ springdoc:
 # Logging
 logging:
   level:
-    org.example.security: DEBUG
-    org.springframework.security: DEBUG
+    org.example.security: ${LOG_LEVEL_SECURITY:INFO}
+    org.springframework.security: ${LOG_LEVEL_SECURITY:INFO}
+    root: ${LOG_LEVEL_ROOT:INFO}

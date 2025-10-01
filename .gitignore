@@ -1,6 +1,54 @@
+# Environment files
+.env
+.env.local
+.env.production
+
+# Firebase credentials
+firebase-adminsdk*.json
+serviceAccountKey.json
+app/src/main/resources/firebase-adminsdk.json
+
 # Ignore Gradle project-specific cache directory
 .gradle
 
 # Ignore Gradle build output directory
 build
-app/src/main/resources/firebase-adminsdk.json
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.vscode/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+*.tmp
+*.temp
+
+# Application specific
+application-*.yml
+application-*.yaml
+!application.yml
+!application.yaml
