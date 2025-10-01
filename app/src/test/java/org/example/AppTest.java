@@ -3,13 +3,25 @@
  */
 package org.example;
 
+import org.example.config.TestConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest
+@SpringBootTest(classes = TestApp.class)
+@ActiveProfiles("test")
+@Import(TestConfig.class)
 @TestPropertySource(properties = {
-    "firebase.credentials-path=classpath:firebase-adminsdk.json"
+    "firebase.credentials-path=classpath:firebase-adminsdk-test.json",
+    "app.jwtSecret=testSecretKeyForJWTTokenGenerationInTestEnvironment",
+    "app.jwtExpirationMs=86400000",
+    "spring.main.allow-bean-definition-overriding=true",
+    "logging.level.org.example=ERROR",
+    "logging.level.org.springframework.security=ERROR",
+    "logging.level.com.google.firebase=ERROR",
+    "logging.level.com.google.cloud=ERROR"
 })
 class AppTest {
     @Test 
